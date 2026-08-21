@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Care — Clinical Operations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #1a2b2e;
+            --ink-soft: #5a6d70;
+            --paper: #f6f4ef;
+            --card: #ffffff;
+            --line: #e3ddd0;
+            --navy: #1d3b4a;
+            --navy-deep: #142a35;
+            --coral: #e0664a;
+            --coral-soft: #fbe9e4;
+            --sage: #4c7a63;
+            --sage-soft: #e6f0e9;
+            --amber-soft: #fdf3de;
+            --amber: #b8792e;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            display: flex;
+            min-height: 100vh;
+        }
+        h1, h2, h3 { font-family: 'Fraunces', serif; font-weight: 600; margin: 0; }
+
+        /* ---------- Sidebar ---------- */
+        aside {
+            width: 240px;
+            flex-shrink: 0;
+            background: var(--navy-deep);
+            color: #dfe8e6;
+            display: flex;
+            flex-direction: column;
+            padding: 28px 20px;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+        .brand-mark {
+            width: 34px; height: 34px; border-radius: 9px;
+            background: linear-gradient(135deg, var(--coral), #f2a488);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px; color: var(--navy-deep);
+        }
+        .brand h1 { font-size: 17px; color: #fff; line-height: 1.2; }
+        .brand p { margin: 2px 0 0; font-size: 11px; color: #92a5a2; letter-spacing: .03em; }
+
+        .pulse {
+            margin: 20px 0 22px;
+            height: 22px;
+            opacity: .55;
+        }
+
+        nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+        nav button {
+            all: unset;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            color: #b9c8c6;
+            font-weight: 500;
+            transition: background .15s, color .15s;
+        }
+        nav button .dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: currentColor; opacity: .5; flex-shrink: 0;
+        }
+        nav button:hover { background: rgba(255,255,255,0.06); color: #fff; }
+        nav button.active { background: rgba(224,102,74,0.16); color: #fff; }
+        nav button.active .dot { background: var(--coral); opacity: 1; }
+        nav .count {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #7d908e;
+        }
+
+        .gw-block {
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .gw-block label {
+            display: block; font-size: 10.5px; text-transform: uppercase;
+            letter-spacing: .07em; color: #7d908e; margin-bottom: 6px;
+        }
+        .gw-block input {
+            width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+            color: #dfe8e6; padding: 7px 9px; border-radius: 6px; font-size: 11.5px; font-family: 'JetBrains Mono', monospace;
+        }
+        .gw-block button {
+            all: unset; cursor: pointer; margin-top: 8px; font-size: 11.5px; color: var(--coral);
+            font-weight: 600;
+        }
+        .gw-block button:hover { text-decoration: underline; }
+
+        /* ---------- Main ---------- */
+        main { flex: 1; padding: 40px 48px; max-width: 1180px; }
+        .page-head {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 28px;
+        }
+        .page-head .eyebrow {
+            font-size: 11px; text-transform: uppercase; letter-spacing: .1em;
+            color: var(--coral); font-weight: 600; margin-bottom: 6px;
+        }
+        .page-head h2 { font-size: 26px; }
+        .page-head p { color: var(--ink-soft); font-size: 13.5px; margin-top: 6px; max-width: 460px; }
+
+        .tab { display: none; }
+        .tab.active { display: block; }
+
+        .grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
+        @media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 24px;
+        }
+        .card h3 {
+            font-size: 15px; margin-bottom: 4px;
+        }
+        .card .hint { font-size: 12px; color: var(--ink-soft); margin-bottom: 18px; }
+
+        form { display: grid; gap: 14px; }
+        form label { display: flex; flex-direction: column; font-size: 12px; color: var(--ink-soft); gap: 6px; font-weight: 500; }
+        input, select {
+            padding: 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-family: 'Inter', sans-serif;
+            background: #fdfcfa;
+            color: var(--ink);
+        }
+        input:focus, select:focus {
+            outline: none; border-color: var(--navy); background: #fff;
+            box-shadow: 0 0 0 3px rgba(29,59,74,0.08);
+        }
+        input:invalid:not(:placeholder-shown) { border-color: #d99; }
+
+        button.submit {
+            background: var(--navy);
+            color: #fff;
+            border: none;
+            padding: 11px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: background .15s;
+        }
+        button.submit:hover { background: var(--navy-deep); }
+
+        .status-msg { font-size: 12px; margin-top: 12px; min-height: 14px; }
+        .status-msg.error { color: #b3441e; }
+        .status-msg.ok { color: var(--sage); }
+
+        /* ---------- Table card ---------- */
+        .table-card { padding: 0; overflow: hidden; }
+        .table-card .thead-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 18px 22px 14px;
+        }
+        .table-card .thead-row h3 { font-size: 15px; }
+        .table-card .thead-row .n {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-soft);
+            background: var(--paper); padding: 3px 9px; border-radius: 20px; border: 1px solid var(--line);
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead tr { border-top: 1px solid var(--line); }
+        th {
+            text-align: left; padding: 10px 22px; font-size: 10.5px; text-transform: uppercase;
+            letter-spacing: .06em; color: var(--ink-soft); font-weight: 600; background: var(--paper);
+        }
+        td { padding: 12px 22px; border-top: 1px solid var(--line); color: var(--ink); }
+        tbody tr:hover { background: #fbfaf7; }
+        .empty-row td { color: var(--ink-soft); font-style: italic; text-align: center; padding: 34px 22px; }
+        .mono { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--ink-soft); }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600;
+        }
+        .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+        .badge.CONFIRMED { background: var(--sage-soft); color: var(--sage); }
+        .badge.CANCELLED { background: var(--coral-soft); color: #b3441e; }
+        .badge.PENDING { background: var(--amber-soft); color: var(--amber); }
+    </style>
+</head>
+<body>
+
+<aside>
+    <div class="brand">
+        <div class="brand-mark">C</div>
+        <div>
+            <h1>City Care</h1>
+            <p>CLINICAL OPS CONSOLE</p>
+        </div>
+    </div>
+
+    <svg class="pulse" viewBox="0 0 220 22" fill="none">
+        <path d="M0 11 H70 L82 11 L90 2 L100 20 L110 11 L120 15 L128 11 H220"
+              stroke="#e0664a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <nav>
+        <button class="nav-btn active" data-tab="patients"><span class="dot"></span>Patients<span class="count" id="countPatients">0</span></button>
+        <button class="nav-btn" data-tab="doctors"><span class="dot"></span>Doctors<span class="count" id="countDoctors">0</span></button>
+        <button class="nav-btn" data-tab="appointments"><span class="dot"></span>Appointments<span class="count" id="countAppointments">0</span></button>
+    </nav>
+
+    <div class="gw-block">
+        <label>Gateway base URL</label>
+        <input id="gatewayUrl" value="http://localhost:8080" />
+        <button onclick="loadAll()">↻ Refresh all data</button>
+    </div>
+</aside>
+
+<main>
+
+    <!-- PATIENTS TAB -->
+    <section id="patients" class="tab active">
+        <div class="page-head">
+            <div>
+                <div class="eyebrow">Registry — 01</div>
+                <h2>Patients</h2>
+                <p>Add new patients and keep the master record that appointments are booked against.</p>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>Register a patient</h3>
+                <p class="hint">All fields are required.</p>
+                <form id="patientForm" novalidate>
+                    <label>Full name
+                        <input name="name" required minlength="2" maxlength="60"
+                               pattern="[A-Za-z\s.'-]+" title="Letters only, at least 2 characters" placeholder="e.g. Nimal Perera">
+                    </label>
+                    <label>Age
+                        <input name="age" type="number" required min="0" max="120" placeholder="e.g. 35">
+                    </label>
+                    <label>Gender
+                        <select name="gender" required>
+                            <option value="" disabled selected>Select gender</option>
+                            <option>Male</option><option>Female</option><option>Other</option>
+                        </select>
+                    </label>
+                    <label>Contact number
+                        <input name="contactNumber" required pattern="0[0-9]{9}" title="10 digits, starting with 0, e.g. 0771234567" placeholder="0771234567">
+                    </label>
+                    <label>Address
+                        <input name="address" required minlength="5" maxlength="120" placeholder="e.g. Colombo">
+                    </label>
+                    <button class="submit" type="submit">Add patient</button>
+                </form>
+                <div id="patientMsg" class="status-msg"></div>
+            </div>
+
+            <div class="card table-card">
+                <div class="thead-row">
+                    <h3>All patients</h3>
+                    <span class="n" id="patientCountBadge">0 records</span>
+                </div>
+                <table>
+                    <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Gender</th><th>Contact</th><th>Address</th></tr></thead>
+                    <tbody id="patientTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- DOCTORS TAB -->
+    <section id="doctors" class="tab">
+        <div class="page-head">
+            <div>
+                <div class="eyebrow">Registry — 02</div>
+                <h2>Doctors</h2>
+                <p>Maintain the roster of practitioners patients can be booked with.</p>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>Register a doctor</h3>
+                <p class="hint">All fields are required.</p>
+                <form id="doctorForm" novalidate>
+                    <label>Full name
+                        <input name="name" required minlength="2" maxlength="60"
+                               pattern="[A-Za-z\s.'-]+" title="Letters only, at least 2 characters" placeholder="e.g. Dr. Kamal Silva">
+                    </label>
+                    <label>Specialization
+                        <input name="specialization" required minlength="2" maxlength="60"
+                               pattern="[A-Za-z\s.'-]+" title="Letters only, at least 2 characters" placeholder="e.g. Cardiologist">
+                    </label>
+                    <label>Contact number
+                        <input name="contactNumber" required pattern="0[0-9]{9}" title="10 digits, starting with 0, e.g. 0712345678" placeholder="0712345678">
+                    </label>
+                    <label>Available days
+                        <input name="availableDays" required minlength="3" maxlength="60" placeholder="Mon, Wed, Fri">
+                    </label>
+                    <button class="submit" type="submit">Add doctor</button>
+                </form>
+                <div id="doctorMsg" class="status-msg"></div>
+            </div>
+
+            <div class="card table-card">
+                <div class="thead-row">
+                    <h3>All doctors</h3>
+                    <span class="n" id="doctorCountBadge">0 records</span>
+                </div>
+                <table>
+                    <thead><tr><th>ID</th><th>Name</th><th>Specialization</th><th>Contact</th><th>Available days</th></tr></thead>
+                    <tbody id="doctorTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- APPOINTMENTS TAB -->
+    <section id="appointments" class="tab">
+        <div class="page-head">
+            <div>
+                <div class="eyebrow">Scheduling — 03</div>
+                <h2>Appointments</h2>
+                <p>Book a patient with a doctor. Both records are verified against the Patient and Doctor services before confirming.</p>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>Book an appointment</h3>
+                <p class="hint">Add at least one patient and doctor first.</p>
+                <form id="appointmentForm" novalidate>
+                    <label>Patient
+                        <select name="patientId" id="patientSelect" required>
+                            <option value="" disabled selected>Select a patient</option>
+                        </select>
+                    </label>
+                    <label>Doctor
+                        <select name="doctorId" id="doctorSelect" required>
+                            <option value="" disabled selected>Select a doctor</option>
+                        </select>
+                    </label>
+                    <label>Date <input name="appointmentDate" type="date" required id="appointmentDate"></label>
+                    <label>Time <input name="appointmentTime" type="time" required></label>
+                    <button class="submit" type="submit">Book appointment</button>
+                </form>
+                <div id="appointmentMsg" class="status-msg"></div>
+            </div>
+
+            <div class="card table-card">
+                <div class="thead-row">
+                    <h3>All appointments</h3>
+                    <span class="n" id="appointmentCountBadge">0 records</span>
+                </div>
+                <table>
+                    <thead><tr><th>ID</th><th>Patient ID</th><th>Doctor ID</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
+                    <tbody id="appointmentTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    function gw() { return document.getElementById('gatewayUrl').value.replace(/\/$/, ''); }
+
+    // ---- Tab switching ----
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    function checkValid(form, msgEl) {
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            msgEl.textContent = 'Please fix the highlighted fields.';
+            msgEl.className = 'status-msg error';
+            return false;
+        }
+        return true;
+    }
+
+    // ---- Patients ----
+    async function loadPatients() {
+        try {
+            const res = await fetch(`${gw()}/patient-service/api/patients`);
+            const data = await res.json();
+
+            document.getElementById('patientTable').innerHTML = data.map(p =>
+                `<tr><td class="mono">#${p.id}</td><td>${p.name}</td><td>${p.age}</td><td>${p.gender}</td><td class="mono">${p.contactNumber}</td><td>${p.address}</td></tr>`
+            ).join('') || '<tr class="empty-row"><td colspan="6">No patients registered yet — add the first one on the left.</td></tr>';
+
+            document.getElementById('patientCountBadge').textContent = `${data.length} record${data.length === 1 ? '' : 's'}`;
+            document.getElementById('countPatients').textContent = data.length;
+
+            const sel = document.getElementById('patientSelect');
+            sel.innerHTML = '<option value="" disabled selected>Select a patient</option>' +
+                data.map(p => `<option value="${p.id}">#${p.id} — ${p.name}</option>`).join('');
+        } catch (e) {
+            document.getElementById('patientTable').innerHTML = `<tr class="empty-row"><td colspan="6">Could not reach the gateway or Patient Service.</td></tr>`;
+        }
+    }
+
+    document.getElementById('patientForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById('patientMsg');
+        if (!checkValid(e.target, msg)) return;
+        const f = new FormData(e.target);
+        const body = Object.fromEntries(f.entries());
+        body.name = body.name.trim();
+        body.address = body.address.trim();
+        body.age = Number(body.age);
+        try {
+            const res = await fetch(`${gw()}/patient-service/api/patients`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) throw new Error('Request failed: ' + res.status);
+            msg.textContent = 'Patient added.';
+            msg.className = 'status-msg ok';
+            e.target.reset();
+            loadPatients();
+        } catch (err) {
+            msg.textContent = 'Could not add patient: ' + err.message;
+            msg.className = 'status-msg error';
+        }
+    });
+
+    // ---- Doctors ----
+    async function loadDoctors() {
+        try {
+            const res = await fetch(`${gw()}/doctor-service/api/doctors`);
+            const data = await res.json();
+
+            document.getElementById('doctorTable').innerHTML = data.map(d =>
+                `<tr><td class="mono">${d.id.slice(-6)}</td><td>${d.name}</td><td>${d.specialization}</td><td class="mono">${d.contactNumber}</td><td>${d.availableDays}</td></tr>`
+            ).join('') || '<tr class="empty-row"><td colspan="5">No doctors registered yet — add the first one on the left.</td></tr>';
+
+            document.getElementById('doctorCountBadge').textContent = `${data.length} record${data.length === 1 ? '' : 's'}`;
+            document.getElementById('countDoctors').textContent = data.length;
+
+            const sel = document.getElementById('doctorSelect');
+            sel.innerHTML = '<option value="" disabled selected>Select a doctor</option>' +
+                data.map(d => `<option value="${d.id}">${d.name} — ${d.specialization}</option>`).join('');
+        } catch (e) {
+            document.getElementById('doctorTable').innerHTML = `<tr class="empty-row"><td colspan="5">Could not reach the gateway or Doctor Service.</td></tr>`;
+        }
+    }
+
+    document.getElementById('doctorForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById('doctorMsg');
+        if (!checkValid(e.target, msg)) return;
+        const f = new FormData(e.target);
+        const body = Object.fromEntries(f.entries());
+        body.name = body.name.trim();
+        body.specialization = body.specialization.trim();
+        body.availableDays = body.availableDays.trim();
+        try {
+            const res = await fetch(`${gw()}/doctor-service/api/doctors`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) throw new Error('Request failed: ' + res.status);
+            msg.textContent = 'Doctor added.';
+            msg.className = 'status-msg ok';
+            e.target.reset();
+            loadDoctors();
+        } catch (err) {
+            msg.textContent = 'Could not add doctor: ' + err.message;
+            msg.className = 'status-msg error';
+        }
+    });
+
+    // ---- Appointments ----
+    async function loadAppointments() {
+        try {
+            const res = await fetch(`${gw()}/appointment-service/api/appointments`);
+            const data = await res.json();
+
+            document.getElementById('appointmentTable').innerHTML = data.map(a =>
+                `<tr><td class="mono">#${a.id}</td><td class="mono">#${a.patientId}</td><td class="mono">${String(a.doctorId).slice(-6)}</td><td>${a.appointmentDate}</td><td>${a.appointmentTime}</td>
+       <td><span class="badge ${a.status}">${a.status}</span></td></tr>`
+            ).join('') || '<tr class="empty-row"><td colspan="6">No appointments booked yet.</td></tr>';
+
+            document.getElementById('appointmentCountBadge').textContent = `${data.length} record${data.length === 1 ? '' : 's'}`;
+            document.getElementById('countAppointments').textContent = data.length;
+        } catch (e) {
+            document.getElementById('appointmentTable').innerHTML = `<tr class="empty-row"><td colspan="6">Could not reach the gateway or Appointment Service.</td></tr>`;
+        }
+    }
+
+    document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById('appointmentMsg');
+        const patientSel = document.getElementById('patientSelect');
+        const doctorSel = document.getElementById('doctorSelect');
+        if (!patientSel.value || !doctorSel.value) {
+            msg.textContent = 'Add at least one patient and one doctor before booking.';
+            msg.className = 'status-msg error';
+            return;
+        }
+        if (!checkValid(e.target, msg)) return;
+        const f = new FormData(e.target);
+        const body = Object.fromEntries(f.entries());
+        body.patientId = Number(body.patientId);
+        try {
+            const res = await fetch(`${gw()}/appointment-service/api/appointments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) throw new Error('Request failed: ' + res.status);
+            msg.textContent = 'Appointment booked.';
+            msg.className = 'status-msg ok';
+            e.target.reset();
+            loadAppointments();
+        } catch (err) {
+            msg.textContent = 'Could not book appointment: ' + err.message;
+            msg.className = 'status-msg error';
+        }
+    });
+
+    function loadAll() {
+        loadPatients();
+        loadDoctors();
+        loadAppointments();
+    }
+    document.getElementById('appointmentDate').min = new Date().toISOString().split('T')[0];
+    loadAll();
+</script>
+
+</body>
+</html>
